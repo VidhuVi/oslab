@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+
+sem_t sem; // Declare semaphore
+
+// Function for Thread 1
+void* thread1(void* arg) {
+    for (int i = 1; i <= 5; i++) {
+        printf("Thread 1: %d\n", i);
+        sleep(1);
+    }
+    sem_post(&sem); // Signal Thread 2 to start
+    return NULL;
+}
+
+// Function for Thread 2
+void* thread2(void* arg) {
+    sem_wait(&sem); // Wait for Thread 1 to finish
+    for (int i = 6; i <= 10; i++) {
+        printf("Thread 2: %d\n", i);
+        sleep(1);
+    }
+    return NULL;
+}
+
+int main() {
+    pthread_t t1, t2;
+
+    sem_init(&sem, 0, 0); // Initialize semaphore with 0 (locked state)
+
+    pthread_create(&t1, NULL, thread1, NULL);
+    pthread_create(&t2, NULL, thread2, NULL);
+
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+
+    sem_destroy(&sem); // Clean up semaphore
+
+    return 0;
+}
