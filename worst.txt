@@ -1,0 +1,67 @@
+#include <stdio.h>
+
+void worstFit(int blocks[], int blockCount, int processes[], int processCount) {
+    int allocation[processCount]; // Stores allocated block index for each process
+
+    // Initialize allocation array with -1 (indicating no allocation)
+    for (int i = 0; i < processCount; i++) {
+        allocation[i] = -1;
+    }
+
+    // Worst Fit Allocation
+    for (int i = 0; i < processCount; i++) {
+        int worstIndex = -1; // Store index of the largest block found
+
+        for (int j = 0; j < blockCount; j++) {
+            if (blocks[j] >= processes[i]) { // If block can fit the process
+                if (worstIndex == -1 || blocks[j] > blocks[worstIndex]) {
+                    worstIndex = j; // Update worst block index
+                }
+            }
+        }
+
+        // Allocate process if a suitable block was found
+        if (worstIndex != -1) {
+            allocation[i] = worstIndex;  // Assign largest block to process
+            blocks[worstIndex] -= processes[i]; // Reduce block size after allocation
+        }
+    }
+
+    // Display allocation results
+    printf("\nProcess No.\tProcess Size\tBlock No.\n");
+    for (int i = 0; i < processCount; i++) {
+        if (allocation[i] != -1)
+            printf("%d\t\t%d\t\t%d\n", i + 1, processes[i], allocation[i] + 1);
+        else
+            printf("%d\t\t%d\t\tNot Allocated\n", i + 1, processes[i]);
+    }
+}
+
+int main() {
+    int blockCount, processCount;
+
+    // Input memory blocks
+    printf("Enter number of memory blocks: ");
+    scanf("%d", &blockCount);
+    int blocks[blockCount];
+
+    printf("Enter sizes of memory blocks: ");
+    for (int i = 0; i < blockCount; i++) {
+        scanf("%d", &blocks[i]);
+    }
+
+    // Input processes
+    printf("\nEnter number of processes: ");
+    scanf("%d", &processCount);
+    int processes[processCount];
+
+    printf("Enter sizes of processes: ");
+    for (int i = 0; i < processCount; i++) {
+        scanf("%d", &processes[i]);
+    }
+
+    // Perform Worst Fit Allocation
+    worstFit(blocks, blockCount, processes, processCount);
+
+    return 0;
+}

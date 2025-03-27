@@ -1,0 +1,59 @@
+#include <stdio.h>
+
+void firstFit(int blocks[], int blockCount, int processes[], int processCount) {
+    int allocation[processCount]; // Stores allocated block index for each process
+
+    // Initialize allocation array with -1 (indicating no allocation)
+    for (int i = 0; i < processCount; i++) {
+        allocation[i] = -1;
+    }
+
+    // First Fit Allocation
+    for (int i = 0; i < processCount; i++) { // For each process
+        for (int j = 0; j < blockCount; j++) { // Find first suitable block
+            if (blocks[j] >= processes[i]) {
+                allocation[i] = j;  // Assign block j to process i
+                blocks[j] -= processes[i]; // Reduce available memory
+                break; // Stop searching after first fit
+            }
+        }
+    }
+
+    // Display allocation results
+    printf("\nProcess No.\tProcess Size\tBlock No.\n");
+    for (int i = 0; i < processCount; i++) {
+        if (allocation[i] != -1)
+            printf("%d\t\t%d\t\t%d\n", i + 1, processes[i], allocation[i] + 1);
+        else
+            printf("%d\t\t%d\t\tNot Allocated\n", i + 1, processes[i]);
+    }
+}
+
+int main() {
+    int blockCount, processCount;
+
+    // Input memory blocks
+    printf("Enter number of memory blocks: ");
+    scanf("%d", &blockCount);
+    int blocks[blockCount];
+
+    printf("Enter sizes of memory blocks: ");
+    for (int i = 0; i < blockCount; i++) {
+        scanf("%d", &blocks[i]);
+    }
+
+    // Input processes
+    printf("\nEnter number of processes: ");
+    scanf("%d", &processCount);
+    int processes[processCount];
+
+    printf("Enter sizes of processes: ");
+    for (int i = 0; i < processCount; i++) {
+        scanf("%d", &processes[i]);
+    }
+
+    // Perform First Fit Allocation
+    firstFit(blocks, blockCount, processes, processCount);
+
+    return 0;
+}
