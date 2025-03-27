@@ -1,0 +1,127 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+// Structure to represent a process
+struct Process {
+    int pid;        // Process ID
+    int arrival;    // Arrival time
+    int burst;      // Burst time
+    int waiting;    // Waiting time
+    int turnaround; // Turnaround time
+    bool completed; // Flag to check if process is completed
+};
+
+// Function to sort processes by arrival time
+void sortByArrival(struct Process p[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (p[j].arrival > p[j + 1].arrival) {
+                struct Process temp = p[j];
+                p[j] = p[j + 1];
+                p[j + 1] = temp;
+            }
+        }
+    }
+}
+
+// Function to calculate waiting and turnaround times using SJF
+void calculateTimes(struct Process p[], int n) {
+    int completed = 0, currentTime = 0;
+    
+    while (completed < n) {
+        int shortestIndex = -1, minBurst = 99999;
+
+        // Select the process with the shortest burst time that has arrived
+        for (int i = 0; i < n; i++) {
+            if (!p[i].completed && p[i].arrival <= currentTime && p[i].burst < minBurst) {
+                minBurst = p[i].burst;
+                shortestIndex = i;
+            }
+        }
+
+        // If no process is found, move time forward
+        if (shortestIndex == -1) {
+            currentTime++;
+            continue;
+        }
+
+        // Process execution
+        currentTime += p[shortestIndex].burst;
+        p[shortestIndex].completed = true;
+        completed++;
+
+        // Turnaround Time = Completion Time - Arrival Time
+        p[shortestIndex].turnaround = currentTime - p[shortestIndex].arrival;
+        // Waiting Time = Turnaround Time - Burst Time
+        p[shortestIndex].waiting = p[shortestIndex].turnaround - p[shortestIndex].burst;
+    }
+}
+
+// Function to display process details
+void displayProcesses(struct Process p[], int n) {
+    printf("\nPID\tArrival\tBurst\tWaiting\tTurnaround\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t%d\t%d\t%d\n", p[i].pid, p[i].arrival, p[i].burst, p[i].waiting, p[i].turnaround);
+    }
+}
+
+// Function to display Gantt Chart
+void displayGanttChart(struct Process p[], int n) {
+    printf("\nGantt Chart:\n ");
+    int time = 0;
+
+    for (int completed = 0; completed < n;) {
+        int shortestIndex = -1, minBurst = 99999;
+
+        for (int i = 0; i < n; i++) {
+            if (!p[i].completed && p[i].arrival <= time && p[i].burst < minBurst) {
+                minBurst = p[i].burst;
+                shortestIndex = i;
+            }
+        }
+
+        if (shortestIndex == -1) {
+            time++;
+            continue;
+        }
+
+        printf(" P%d |", p[shortestIndex].pid);
+        time += p[shortestIndex].burst;
+        p[shortestIndex].completed = true;
+        completed++;
+    }
+
+    printf("\n");
+}
+
+// Main function
+int main() {
+    int n;
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    struct Process p[n];
+
+    // Input process details
+    for (int i = 0; i < n; i++) {
+        printf("\nEnter Arrival Time and Burst Time for Process %d: ", i + 1);
+        p[i].pid = i + 1;
+        scanf("%d %d", &p[i].arrival, &p[i].burst);
+        p[i].completed = false; // Initialize completion status
+    }
+
+    // Sort processes by arrival time
+    sortByArrival(p, n);
+
+    // Calculate waiting and turnaround time
+    calculateTimes(p, n);
+
+    // Display results
+    displayProcesses(p, n);
+
+    // Display Gantt chart
+    displayGanttChart(p, n);
+
+    return 0;
+}
